@@ -6,6 +6,8 @@ const usersRoutes = require('./routes/users-routes');
 const postsRoutes = require('./routes/posts-routes');
 const HttpError = require('./models/http-error');
 
+const CONFIG = require('./config.json');
+
 const app = express();
 
 app.use(bodyParser.json());
@@ -36,7 +38,7 @@ app.post('/signup', async (req, res) => {
 });
 
 mongoose
-    .connect('mongodb+srv://genmicin:hDP7r6Ikfc3EYlty@cluster0.0hwaf.mongodb.net/posts?retryWrites=true&w=majority')
+    .connect(`mongodb+srv://${CONFIG.mongo.username}:${CONFIG.mongo.password}@cluster0.ivvcwqd.mongodb.net/?retryWrites=true&w=majority`)
     .then(() => {
         //app.listen(5000);
         app.listen(5000, () => { console.log("Connected") });
