@@ -12,16 +12,16 @@ router.get('/user/:uid', postsControllers.getPostsByUserId);
 
 router.post('/',
     [
-        check('title').not().isEmpty(),
-        check('description').isLength({ min: 5 }),
+        check('comment').not().isEmpty(),
+        //check('description').isLength({ min: 5 }),
     ],
     postsControllers.newPost
 );
 
 router.patch('/:pid',
     [
-        check('title').not().isEmpty(),
-        check('description').isLength({ min: 5 })
+        check('comment').not().isEmpty(),
+        //check('description').isLength({ min: 5 })
     ],
     postsControllers.editPost
 );

@@ -3,9 +3,8 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 
 const usersRoutes = require('./routes/users-routes');
-const postsRoutes = require('./routes/posts-routes');
+const threadsRoutes = require('./routes/threads-routes');
 const HttpError = require('./models/http-error');
-
 const CONFIG = require('./config.json');
 
 const app = express();
@@ -13,7 +12,7 @@ const app = express();
 app.use(bodyParser.json());
 
 app.use('/users', usersRoutes);
-app.use('/posts', postsRoutes);
+app.use('/threads', threadsRoutes);
 
 app.use((req, res, next) => {
     const error = new HttpError('Could not find this route.', 404);
@@ -32,7 +31,7 @@ app.get('/', (req, res) => {
     res.send('Hello World!');
 });
 
-app.post('/signup', async (req, res) => {
+app.post('/register', async (req, res) => {
     console.log(req.body)
     res.json({ status: 'ok' });
 });
