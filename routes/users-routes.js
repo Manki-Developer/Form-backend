@@ -2,11 +2,11 @@ const express = require('express');
 const { check } = require('express-validator');
 
 const usersControllers = require('../controllers/auth-controller');
+const fileUpload = require('../middleware/file-upload');
 const auth = require('../middleware/auth');
 
 const router = express.Router();
 
-router.get('/', auth, usersControllers.getUsers);
 
 router.post('/register', 
     [
@@ -19,5 +19,11 @@ router.post('/register',
 );
 
 router.post('/login', usersControllers.login);
+
+router.use(auth);
+
+router.get('/', usersControllers.getUsers);
+
+router.post('/update', fileUpload.single('image'), usersControllers.update);
 
 module.exports = router;

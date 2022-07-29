@@ -1,9 +1,11 @@
 const { validationResult } = require('express-validator');
+const fs = require('fs');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const HttpError = require('../models/http-error');
 const User = require('../models/user');
+
 
 const getUsers = async (req, res) => {
 
@@ -27,7 +29,7 @@ const register = async (req, res) => {
         let existingUser = await User.findOne({ email });
 
         if (existingUser) {
-            res
+            return res
             .status(400)
             .json({ errors: [{ msg: 'User already exists' }] });
         }
@@ -38,7 +40,7 @@ const register = async (req, res) => {
             username,
             email,
             password,
-            //image: req.file.path,
+            image: null,
             threads: []
         });
 
@@ -74,7 +76,7 @@ const login = async (req, res) => {
         const existingUser = await User.findOne({ email });
         
         const isValid = await bcrypt.compare(password, existingUser.password);
-        if(!isValid) {
+        if (!isValid) {
             return res.status(400).json({ errors: [{ msg: 'Invalid Credentials' }] });
         }
         const payload = {
@@ -98,6 +100,35 @@ const login = async (req, res) => {
     }
 };
 
+const update = async (req, res) => {
+    const {image} = req.body;
+    console.log('test');
+    try {
+        const existingUser = await User.findOne({ email });
+        
+        const payload = {
+            user: {
+                id: existingUser.id
+            }
+        };
+        
+        jwt.sign(
+            payload,
+            'secret_token',
+            { expiresIn: '5 days' },
+            (err, token) => {
+                if (err) throw err;
+                res.json({ token });
+            }
+        );
+
+    } catch (err) {
+        console.error(err.message);
+        res.json(500).send({"message": req.user.id});
+    }
+}
+
+exports.update = update;
 exports.getUsers = getUsers;
 exports.register = register;
 exports.login = login;
