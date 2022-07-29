@@ -6,27 +6,21 @@ const Thread = require('../models/thread');
 const User = require('../models/user');
 
 const getThreadById = async (req, res, next) => {
-    const threadId = req.params.tid;
-
-    let thread;
     try {
-        thread = await Thread.findById(threadId);
+        const thread = await Thread.findById(req.params.tid);
+
+        if(!thread){
+            return res.json(404).send('Thread id not found.');
+        }
+
+        res.json({thread: thread.toObject({getters: true})});
     } catch (err) {
         const error = new HttpError('Something went wrong, could not find thread.', 500);
         return next(error);
     }
-
-    if (!thread) {
-        const error = new HttpError('Thread id not found.', 404);
-        return next(error);
-    }
-
-    res.json({ thread: thread.toObject({ getters: true }) });
 };
 
 const getThreadsByUserId = async (req, res, next) => {
-    const userId = req.params.uid;
-
     let threads;
     try {
         threads = await Thread.find({ author: userId });
@@ -48,42 +42,33 @@ const newThread = async (req, res, next) => {
         throw new HttpError('Invalid input.', 422);
     }
 
-    const { title, description, author } = req.body;
-    const createdThread = new Thread({
-        title,
-        description,
-        //image,
-        author
-    });
-
-    let user;
     try {
-        user = await User.findById(author);
-    } catch (err) {
-        const error = new HttpError('Failed to create thread, please try again.', 500);
-        return next(error);
-    }
+        const { username, title, description } = req.body;
+        const today = new Date();
+        const createdThread = new Thread({
+            username,
+            title,
+            description,
+            createdAt: today.getDate(),
+            //image,
+            posts
+        });
 
-    if (!user) {
-        const error = new HttpError('Could not find user for provided id.', 404);
-        return next(error);
-    }
+        //authentication disini pake token (user.id) yang di process lewat middleware auth.js
+        const user = await User.findById(req.user.id);
 
-    console.log(user);
-
-    try {
         const sess = await mongoose.startSession();
         sess.startTransaction();
         await createdThread.save({ session: sess });
         user.threads.push(createdThread);
         await user.save({ session: sess });
         sess.commitTransaction();
-    } catch (err) {
-        const error = new HttpError('Failed to create thread, please try again.', 500);
-        return next(error);
-    }
 
-    res.status(201).json({ thread: createdThread });
+        res.status(201).json({ thread: createdThread });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Invalid credentials, Failed to connect.');
+    }
 };
 
 const editThread = async (req, res, next) => {

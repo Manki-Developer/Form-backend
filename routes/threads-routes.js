@@ -7,11 +7,12 @@ const router = express.Router();
 
 router.get('/:tid', threadsControllers.getThreadById);
 
-router.get('/user/:uid', threadsControllers.getThreadsByUserId);
-
 router.use(auth);
 
-router.post('/',
+router.get('/user', threadsControllers.getThreadsByUserId);
+
+//tambahin middleware auth disini buat prosses token
+router.post('/:tid',
     [
         check('title').not().isEmpty(),
         check('description').isLength({ min: 5 }),
