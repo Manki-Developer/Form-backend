@@ -11,7 +11,7 @@ const User = require('../models/user');
 const getPosts = async (req, res, next) => {
     try{
         const posts = await Post.find({});
-        res.status(200).json({posts});
+        res.json({posts});
     }catch(err){
         console.log(err.message);
         return res
@@ -91,7 +91,7 @@ const createPost = async (req, res, next) => {
         await user.save({ session: sess });
         sess.commitTransaction();
 
-        res.status(200).json({ post: createdPost });
+        res.json({ post: createdPost });
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Invalid credentials, Failed to connect.');
@@ -114,7 +114,7 @@ const deletePost = async (req, res, next) => {
         await post.creator.save({ session: sess });
         await sess.commitTransaction();
 
-        res.status(200).json({ message: "Thread has been deleted." });
+        res.json({ message: "Thread has been deleted." });
     }catch(err){
         console.log(err.message);
         res.status(500).send("Something went wrong, could not delete thread.");

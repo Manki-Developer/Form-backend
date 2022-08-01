@@ -7,7 +7,7 @@ const auth = require('../middleware/auth');
 
 const router = express.Router();
 
-
+//to Register
 router.post('/register', 
     [
         check('name').not().isEmpty(),
@@ -18,12 +18,15 @@ router.post('/register',
     usersControllers.register
 );
 
+//to Login
 router.post('/login', usersControllers.login);
 
 router.use(auth);
 
+//To get all the users
 router.get('/', usersControllers.getUsers);
 
-router.post('/update', fileUpload.single('image'), usersControllers.update);
+//to update a user profile (not finished)
+router.post('/update/', fileUpload.single('image'), usersControllers.update);
 
 module.exports = router;
