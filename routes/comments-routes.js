@@ -2,32 +2,20 @@ const express = require("express");
 
 const { check } = require("express-validator");
 
-const postsControllers = require("../controllers/comments-controller");
-
+const commentsControllers = require("../controllers/comments-controller");
+const auth = require("../middleware/auth");
 const router = express.Router();
 
-router.get("/:pid", postsControllers.getPostById);
+router.get("/:cid", commentsControllers.getCommentById);
 
-router.get("/user/:uid", postsControllers.getPostsByUserId);
+router.use(auth);
 
 router.post(
-  "/",
-  [
-    check("comment").not().isEmpty(),
-    //check('description').isLength({ min: 5 }),
-  ],
-  postsControllers.newPost
+  "/:post_id",
+  [check("text").isLength({ min: 5 })],
+  commentsControllers.createComment
 );
 
-router.patch(
-  "/:pid",
-  [
-    check("comment").not().isEmpty(),
-    //check('description').isLength({ min: 5 })
-  ],
-  postsControllers.editPost
-);
-
-router.delete("/:pid", postsControllers.deletePost);
+// router.delete("/:pid", postsControllers.deletePost);
 
 module.exports = router;

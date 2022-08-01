@@ -6,7 +6,9 @@ const jwt = require('jsonwebtoken');
 const HttpError = require('../models/http-error');
 const User = require('../models/user');
 
-
+// @route    GET api/users
+// @desc     Get all user information
+// @access   Private
 const getUsers = async (req, res) => {
     try {
         const user = await User.findById(req.user.id).select('-password');
@@ -17,6 +19,9 @@ const getUsers = async (req, res) => {
     }
 };
 
+// @route    GET api/register
+// @desc     To register a user
+// @access   Private
 const register = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -69,6 +74,9 @@ const register = async (req, res) => {
     }
 };
 
+// @route    GET api/login
+// @desc     To login a user
+// @access   Private
 const login = async (req, res) => {
     const { email, password } = req.body;
     try {
@@ -99,6 +107,9 @@ const login = async (req, res) => {
     }
 };
 
+// @route    GET api/update
+// @desc     To update a user profile (not finished)
+// @access   Private
 const update = async (req, res) => {
     const {image} = req.body;
     console.log('test');
