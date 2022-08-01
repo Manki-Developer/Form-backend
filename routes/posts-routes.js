@@ -1,31 +1,29 @@
-const express = require('express');
+const express = require("express");
+const { check } = require("express-validator");
 
-const { check } = require('express-validator');
-
-const postsControllers = require('../controllers/posts-controller');
-
+const postsControllers = require("../controllers/post-controller");
+const auth = require("../middleware/auth");
 const router = express.Router();
 
-router.get('/:pid', postsControllers.getPostById);
+router.use(auth);
 
-router.get('/user/:uid', postsControllers.getPostsByUserId);
+//Get all post
+router.get("/", postsControllers.getPosts);
 
-router.post('/',
-    [
-        check('comment').not().isEmpty(),
-        //check('description').isLength({ min: 5 }),
-    ],
-    postsControllers.newPost
+//Get only one post
+router.get("/single/:pid", postsControllers.getPostById);
+
+//Get all posts from one user
+router.get("/user", postsControllers.getPostsByUserId);
+
+//Create new post
+router.post(
+  "/",
+  [check("title").not().isEmpty(), check("description").isLength({ min: 5 })],
+  postsControllers.createPost
 );
 
-router.patch('/:pid',
-    [
-        check('comment').not().isEmpty(),
-        //check('description').isLength({ min: 5 })
-    ],
-    postsControllers.editPost
-);
-
-router.delete('/:pid', postsControllers.deletePost);
+//Delete a post
+router.delete("/:pid", postsControllers.deletePost);
 
 module.exports = router;
