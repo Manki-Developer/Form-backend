@@ -2,7 +2,7 @@ const { validationResult } = require('express-validator');
 const mongoose = require('mongoose');
 
 const HttpError = require('../models/http-error');
-const Post = require('../models/post');
+const Post = require('../models/comment');
 const User = require('../models/user');
 
 const getPostById = async (req, res, next) => {
