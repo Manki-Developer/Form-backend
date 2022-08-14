@@ -11,7 +11,7 @@ const User = require('../models/user');
 const getPosts = async (req, res, next) => {
     try{
         const posts = await Post.find({});
-        res.json({posts});
+        res.json(posts);
     }catch(err){
         console.log(err.message);
         return res
@@ -31,7 +31,7 @@ const getPostById = async (req, res, next) => {
           return res.status(404).send("Thread id not found.");
         }
 
-        res.json({ post: post });
+        res.json(post);
     } catch (err) {
         console.log(err.message);
         return res
@@ -52,7 +52,7 @@ const getPostsByUserId = async (req, res, next) => {
             .status(404)
             .send("Could not find thread for the provided user id");
         }
-        res.json({ posts: posts.map((post) => post) });
+        res.json(posts.map((post) => post));
     } catch (err) {
         console.error(err.message);
         res
@@ -72,18 +72,19 @@ const createPost = async (req, res, next) => {
     }
 
     try {
+        const user = await User.findById(req.user.id);
         const {title, description } = req.body;
         const today = new Date();
         const createdPost = new Post({
-            title,
-            description,
-            createdAt: today,
-            comments: [],
-            creator: req.user.id,
+          title,
+          description,
+          createdAt: today,
+          comments: [],
+          creatorName: user.name,
+          creatorUsername: user.username,
+          creator: req.user.id,
         });
 
-        const user = await User.findById(req.user.id);
-        
         const sess = await mongoose.startSession();
         sess.startTransaction();
         await createdPost.save({ session: sess });
@@ -91,7 +92,7 @@ const createPost = async (req, res, next) => {
         await user.save({ session: sess });
         sess.commitTransaction();
 
-        res.json({ post: createdPost });
+        res.json( createdPost );
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Invalid credentials, Failed to connect.');
