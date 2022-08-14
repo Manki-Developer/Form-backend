@@ -9,6 +9,8 @@ const commentsRoutes = require('./routes/comments-routes')
 const HttpError = require('./models/http-error');
 const CONFIG = require('./config.json');
 
+const PORT = process.env.PORT || 5000;
+
 const app = express();
 
 app.options("*", cors()); 
@@ -47,7 +49,7 @@ mongoose
     .connect(`mongodb+srv://${CONFIG.mongo.username}:${CONFIG.mongo.password}@cluster0.ivvcwqd.mongodb.net/Forum?retryWrites=true&w=majority`)
     .then(() => {
         //app.listen(5000);
-        app.listen(5000, () => { console.log("Connected") });
+        app.listen(PORT, () => { console.log("Connected") });
     })
     .catch(err => {
         console.log(err);

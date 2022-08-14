@@ -6,7 +6,9 @@ const postSchema = new Schema({
     title: { type: String, required: true },
     description: { type: String, required: true },
     createdAt: { type: Date, required: true },
-    comments: [{ type: mongoose.Types.ObjectId, ref: 'Comment' }],
+    comments: [{ type: Object, ref: 'Comment' }],
+    creatorName: {type: String},
+    creatorUsername: {type: String},
     creator:  { type: mongoose.Types.ObjectId, required: true, ref: 'User' },
 });
 

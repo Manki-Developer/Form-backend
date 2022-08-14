@@ -37,9 +37,11 @@ const createComment = async (req, res, next) => {
     try{
         const { text } = req.body;
         const today = new Date();
+        const user = await User.findById(req.user.id);
         const createdComment = new Comment({
             text,
             createdAt: today,
+            creatorName: user.name,
             creator: req.user.id,
             postParent: req.params.post_id,
         });
@@ -52,7 +54,7 @@ const createComment = async (req, res, next) => {
         await post_parent.save({ session: sess });
         sess.commitTransaction();
 
-        res.json({ comment: createdComment });
+        res.json({ comments: createdComment });
     }catch(err){
         console.log(err.message);
         return res.status(500).send("Invalid credentials, Failed to connect.");
