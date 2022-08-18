@@ -44,9 +44,27 @@ const getPostById = async (req, res, next) => {
 // @route    GET api/posts/user
 // @desc     Get all the posts from one user (for the user profile page)
 // @access   Private
-const getPostsByUserId = async (req, res, next) => {
+// const getPostsByUserId = async (req, res, next) => {
+//     try {
+//         const posts = await Post.find({creator: req.user.id});
+
+//         if (!posts || posts.length === 0) {
+//           return res
+//             .status(404)
+//             .send("Could not find thread for the provided user id");
+//         }
+//         res.json(posts.map((post) => post));
+//     } catch (err) {
+//         console.error(err.message);
+//         res
+//           .status(500)
+//           .send("Failed to fetch threads, please try again later.");
+//     }
+// };
+
+const getPostByUsername = async (req, res, next) => {
     try {
-        const posts = await Post.find({creator: req.user.id});
+        const posts = await Post.find({creatorUsername: req.params.id});
 
         if (!posts || posts.length === 0) {
           return res
@@ -127,100 +145,99 @@ const deletePost = async (req, res, next) => {
 };
 
 const likePost = async (req, res, next) => {
-    try{
-        const postId = req.params.pid;
-        console.log(postId);
-        const post = await Post.findById(postId);
-        if(!post){
-            return res.status(404).send("Could not find post for this id");
-        }
-
-        const postlike = await Postlike.findOne({
-          post: postId,
-          user: req.user.id,
-        });
-
-        const sess = await mongoose.startSession();
-        sess.startTransaction();
-        if (!postlike) {
-          let createPostLike = new Postlike({
-            post: postId,
-            user: req.user.id,
-            like: true,
-            dislike: false,
-          });
-          await createPostLike.save({ session: sess });
-          post.like.push(createPostLike);
-          await post.save({ session: sess });
-        } else if(postlike.dislike) {
-            post.dislike.remove(postlike);
-            postlike.like = true;
-            postlike.dislike = false;
-            await postlike.save({ session: sess });
-            post.like.push(postlike);
-            await post.save({ session: sess });
-        }else{
-            await postlike.remove({ session: sess });
-            post.like.pull(postlike);
-            await post.save({ session: sess });
-        }
-        await sess.commitTransaction();
-        res.json(post);
-
-    }catch(err){
-        console.log(err.message);
-        res.status(500).send("Something went wrong, could not like post.");
+  try {
+    const postId = req.params.pid;
+    console.log(postId);
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).send("Could not find post for this id");
     }
-}
+
+    const postlike = await Postlike.findOne({
+      post: postId,
+      user: req.user.id,
+    });
+
+    const sess = await mongoose.startSession();
+    sess.startTransaction();
+    if (!postlike) {
+      let createPostLike = new Postlike({
+        post: postId,
+        user: req.user.id,
+        like: true,
+        dislike: false,
+      });
+      await createPostLike.save({ session: sess });
+      post.like.push(createPostLike);
+      await post.save({ session: sess });
+    } else if (postlike.dislike) {
+      post.dislike.remove(postlike);
+      postlike.like = true;
+      postlike.dislike = false;
+      await postlike.save({ session: sess });
+      post.like.push(postlike);
+      await post.save({ session: sess });
+    } else {
+      await postlike.remove({ session: sess });
+      post.like.pull(postlike);
+      await post.save({ session: sess });
+    }
+    await sess.commitTransaction();
+    res.json(post);
+  } catch (err) {
+    console.log(err.message);
+    res.status(500).send("Something went wrong, could not like post.");
+  }
+};
 
 const dislikePost = async (req, res, next) => {
-    try{
-        const postId = req.params.pid;
-        const post = await Post.findById(postId);
-        if(!post){
-            return res.status(404).send("Could not find post for this id");
-        }
-
-        const postlike = await Postlike.findOne({
-          post: postId,
-          user: req.user.id,
-        });
-
-        const sess = await mongoose.startSession();
-        sess.startTransaction();
-        if (!postlike) {
-          let createPostLike = new Postlike({
-            post: postId,
-            user: req.user.id,
-            like: false,
-            dislike: true,
-          });
-          await createPostLike.save({ session: sess });
-          post.dislike.push(createPostLike);
-          await post.save({ session: sess });
-        } else if(postlike.like){
-            post.like.remove(postlike);
-            postlike.dislike = true;
-            postlike.like = false;
-            await postlike.save({ session: sess });
-            post.dislike.push(postlike);
-            await post.save({ session: sess });
-        }else{
-            await postlike.remove({ session: sess });
-            post.dislike.pull(postlike);
-            await post.save({ session: sess });
-        }
-        await sess.commitTransaction();
-        res.json(post);
-
-    }catch(err){
-        console.log(err.message);
-        res.status(500).send("Something went wrong, could not dislike post.");
+  try {
+    const postId = req.params.pid;
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).send("Could not find post for this id");
     }
-}
 
-exports.getPostsByUserId = getPostsByUserId;
+    const postlike = await Postlike.findOne({
+      post: postId,
+      user: req.user.id,
+    });
+
+    const sess = await mongoose.startSession();
+    sess.startTransaction();
+    if (!postlike) {
+      let createPostLike = new Postlike({
+        post: postId,
+        user: req.user.id,
+        like: false,
+        dislike: true,
+      });
+      await createPostLike.save({ session: sess });
+      post.dislike.push(createPostLike);
+      await post.save({ session: sess });
+    } else if (postlike.like) {
+      post.like.remove(postlike);
+      postlike.dislike = true;
+      postlike.like = false;
+      await postlike.save({ session: sess });
+      post.dislike.push(postlike);
+      await post.save({ session: sess });
+    } else {
+      await postlike.remove({ session: sess });
+      post.dislike.pull(postlike);
+      await post.save({ session: sess });
+    }
+    await sess.commitTransaction();
+    res.json(post);
+  } catch (err) {
+    console.log(err.message);
+    res.status(500).send("Something went wrong, could not dislike post.");
+  }
+};
+
+// exports.getPostsByUserId = getPostsByUserId;
 exports.getPostById = getPostById;
+exports.getPostByUsername = getPostByUsername;
 exports.getPosts = getPosts;
 exports.createPost = createPost;
 exports.deletePost = deletePost;

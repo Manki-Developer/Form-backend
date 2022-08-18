@@ -14,7 +14,10 @@ router.get("/", postsControllers.getPosts);
 router.get("/single/:pid", postsControllers.getPostById);
 
 //Get all posts from one user
-router.get("/user", postsControllers.getPostsByUserId);
+// router.get("/user", postsControllers.getPostsByUserId);
+
+//Get all posts from user's username
+router.get("/username/:id", postsControllers.getPostByUsername);
 
 //like a post
 router.post("/like/:pid", postsControllers.likePost);
