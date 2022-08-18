@@ -16,6 +16,12 @@ router.get("/single/:pid", postsControllers.getPostById);
 //Get all posts from one user
 router.get("/user", postsControllers.getPostsByUserId);
 
+//like a post
+router.post("/like/:pid", postsControllers.likePost);
+
+//dislike a post
+router.post("/dislike/:pid", postsControllers.dislikePost);
+
 //Create new post
 router.post(
   "/",
