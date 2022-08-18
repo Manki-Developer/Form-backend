@@ -43,23 +43,23 @@ const getPostById = async (req, res, next) => {
 // @route    GET api/posts/user
 // @desc     Get all the posts from one user (for the user profile page)
 // @access   Private
-const getPostsByUserId = async (req, res, next) => {
-    try {
-        const posts = await Post.find({creator: req.user.id});
+// const getPostsByUserId = async (req, res, next) => {
+//     try {
+//         const posts = await Post.find({creator: req.user.id});
 
-        if (!posts || posts.length === 0) {
-          return res
-            .status(404)
-            .send("Could not find thread for the provided user id");
-        }
-        res.json(posts.map((post) => post));
-    } catch (err) {
-        console.error(err.message);
-        res
-          .status(500)
-          .send("Failed to fetch threads, please try again later.");
-    }
-};
+//         if (!posts || posts.length === 0) {
+//           return res
+//             .status(404)
+//             .send("Could not find thread for the provided user id");
+//         }
+//         res.json(posts.map((post) => post));
+//     } catch (err) {
+//         console.error(err.message);
+//         res
+//           .status(500)
+//           .send("Failed to fetch threads, please try again later.");
+//     }
+// };
 
 const getPostByUsername = async (req, res, next) => {
     try {
@@ -141,7 +141,7 @@ const deletePost = async (req, res, next) => {
 
 };
 
-exports.getPostsByUserId = getPostsByUserId;
+// exports.getPostsByUserId = getPostsByUserId;
 exports.getPostById = getPostById;
 exports.getPostByUsername = getPostByUsername;
 exports.getPosts = getPosts;
