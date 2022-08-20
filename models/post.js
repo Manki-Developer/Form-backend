@@ -11,6 +11,7 @@ const postSchema = new Schema({
     dislike: [{type: mongoose.Types.ObjectId, ref: 'User'}],
     creatorName: {type: String},
     creatorUsername: {type: String},
+    creatorImage: {type: String},
     creator:  { type: mongoose.Types.ObjectId, required: true, ref: 'User' },
 });
 

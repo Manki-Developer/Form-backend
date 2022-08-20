@@ -27,6 +27,18 @@ router.use(auth);
 router.get('/', usersControllers.getUsers);
 
 //to update a user profile (not finished)
-router.post('/update/', fileUpload.single('image'), usersControllers.update);
+router.put(
+  "/update",
+  fileUpload.single("image"),
+  [
+    check("password").isLength({ min: 6 }),
+    check("name").not().isEmpty(),
+    check("username").not().isEmpty(),
+    check("email").normalizeEmail().isEmail(),
+    check("newpassword").isLength({ min: 6 }),
+  ],
+  usersControllers.update
+);
+
 
 module.exports = router;
