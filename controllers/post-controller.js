@@ -5,6 +5,7 @@ const HttpError = require('../models/http-error');
 const Post = require('../models/post');
 const Postlike = require('../models/postlike');
 const User = require('../models/user');
+const Comment = require("../models/comment");
 
 // @route    GET api/posts/
 // @desc     Get all posts information
@@ -103,6 +104,7 @@ const createPost = async (req, res, next) => {
           dislike:[],
           creatorName: user.name,
           creatorUsername: user.username,
+          creatorImage: user.image,
           creator: req.user.id,
         });
 
@@ -131,6 +133,20 @@ const deletePost = async (req, res, next) => {
         }
         const sess = await mongoose.startSession();
         sess.startTransaction();
+        if (post.like.length > 0) {
+            post.like.map(async (postlike_id) => {await Postlike.findById(postlike_id).deleteOne({ session: sess });});
+        }
+
+        if (post.dislike.length > 0) {
+            post.dislike.map(async (postlike_id) => {
+              await Postlike.findById(postlike_id).deleteOne({ session: sess });
+            });
+        }
+        if(post.comments.length > 0){
+            post.comments.map(async (comment_id) => {
+                await Comment.findById(comment_id).deleteOne({ session: sess });
+            })
+        }
         await post.remove({ session: sess });
         post.creator.posts.pull(post);
         await post.creator.save({ session: sess });
