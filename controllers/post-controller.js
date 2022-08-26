@@ -68,9 +68,7 @@ const getPostByUsername = async (req, res, next) => {
         const posts = await Post.find({creatorUsername: req.params.id});
 
         if (!posts || posts.length === 0) {
-          return res
-            .status(404)
-            .send("Could not find thread for the provided user id");
+          return res.json([]);
         }
         res.json(posts);
     } catch (err) {

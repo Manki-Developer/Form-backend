@@ -21,6 +21,8 @@ router.post('/register',
 //to Login
 router.post('/login', usersControllers.login);
 
+router.get('/username/:id', usersControllers.getUserByUsername);
+
 router.use(auth);
 
 //To get all the users
