@@ -20,6 +20,18 @@ const getUsers = async (req, res) => {
   }
 };
 
+const getUserByUsername = async (req, res) => {
+  try{
+    const user = await User.find({ username: req.params.id }).select(
+      "-password"
+    );
+    res.json(user);
+  }catch(err){
+    console.error(err.message);
+    res.status(500).send("Server Error");
+  }
+}
+
 // @route    GET api/register
 // @desc     To register a user
 // @access   Private
@@ -37,11 +49,13 @@ const register = async (req, res) => {
       return res.status(400).json({ errors: [{ msg: "User already exists" }] });
     }
 
+    const today = new Date();
     const createdUser = new User({
       name,
       username,
       email,
       password,
+      createdAt: today,
       threads: [],
     });
 
@@ -137,3 +151,4 @@ exports.update = update;
 exports.getUsers = getUsers;
 exports.register = register;
 exports.login = login;
+exports.getUserByUsername = getUserByUsername;
