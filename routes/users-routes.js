@@ -37,7 +37,6 @@ router.put(
     check("name").not().isEmpty(),
     check("username").not().isEmpty(),
     check("email").normalizeEmail().isEmail(),
-    check("newpassword").isLength({ min: 6 }),
   ],
   usersControllers.update
 );

@@ -42,6 +42,8 @@ const createComment = async (req, res, next) => {
             text,
             createdAt: today,
             creatorName: user.name,
+            creatorUsername: user.username,
+            creatorImage: user.image,
             creator: req.user.id,
             postParent: req.params.post_id,
         });
