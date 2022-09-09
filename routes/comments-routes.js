@@ -6,9 +6,9 @@ const commentsControllers = require("../controllers/comments-controller");
 const auth = require("../middleware/auth");
 const router = express.Router();
 
-router.get("/:cid", commentsControllers.getCommentById);
-
 router.use(auth);
+
+router.get("/:post_id", commentsControllers.getCommentByPost)
 
 router.post(
   "/:post_id",

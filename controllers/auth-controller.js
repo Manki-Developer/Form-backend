@@ -7,6 +7,7 @@ const jwt = require("jsonwebtoken");
 const HttpError = require("../models/http-error");
 const User = require("../models/user");
 const Post = require("../models/post");
+const Comment = require("../models/comment");
 const { nextTick } = require("process");
 
 // @route    GET api/users
@@ -58,7 +59,8 @@ const register = async (req, res) => {
       email,
       password,
       createdAt: today,
-      threads: [],
+      posts: [],
+      comments: [],
     });
 
     const salt = await bcrypt.genSalt(10);
@@ -141,12 +143,24 @@ const update = async (req, res, next) => {
       const salt = await bcrypt.genSalt(10);
       existingUser.password = await bcrypt.hash(newpassword, salt);
     }
-      const sess = await mongoose.startSession();
-      sess.startTransaction();
+    
+    const sess = await mongoose.startSession();
+    sess.startTransaction();
+
     const imageurl = existingUser.image;
     if (existingUser.posts.length > 0) {
       existingUser.posts.map(async (posts_id) => {
         await Post.findByIdAndUpdate(posts_id, {
+          creatorName: name,
+          creatorUsername: username,
+          creatorImage: req.file !== undefined ? req.file.path : imageurl,
+        },{session: sess});
+      });
+    }
+
+    if(existingUser.comments.length > 0){
+      existingUser.comments.map(async (comment_id) => {
+        await Comment.findByIdAndUpdate(comment_id, {
           creatorName: name,
           creatorUsername: username,
           creatorImage: req.file !== undefined ? req.file.path : imageurl,

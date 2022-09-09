@@ -142,8 +142,9 @@ const deletePost = async (req, res, next) => {
         }
         if(post.comments.length > 0){
             post.comments.map(async (comment_id) => {
-                await Comment.findById(comment_id).deleteOne({ session: sess });
-            })
+              post.creator.comments.pull(comment_id);
+              await Comment.findById(comment_id).deleteOne({ session: sess });
+            });
         }
         await post.remove({ session: sess });
         post.creator.posts.pull(post);
