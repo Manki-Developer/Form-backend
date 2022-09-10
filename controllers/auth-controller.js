@@ -1,10 +1,13 @@
 const { validationResult } = require("express-validator");
 const fs = require("fs");
+const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 const HttpError = require("../models/http-error");
 const User = require("../models/user");
+const Post = require("../models/post");
+const Comment = require("../models/comment");
 const { nextTick } = require("process");
 
 // @route    GET api/users
@@ -21,16 +24,16 @@ const getUsers = async (req, res) => {
 };
 
 const getUserByUsername = async (req, res) => {
-  try{
-    const user = await User.find({ username: req.params.id }).select(
+  try {
+    const user = await User.findOne({ username: req.params.id }).select(
       "-password"
     );
     res.json(user);
-  }catch(err){
+  } catch (err) {
     console.error(err.message);
     res.status(500).send("Server Error");
   }
-}
+};
 
 // @route    GET api/register
 // @desc     To register a user
@@ -56,7 +59,8 @@ const register = async (req, res) => {
       email,
       password,
       createdAt: today,
-      threads: [],
+      posts: [],
+      comments: [],
     });
 
     const salt = await bcrypt.genSalt(10);
@@ -139,7 +143,37 @@ const update = async (req, res, next) => {
       const salt = await bcrypt.genSalt(10);
       existingUser.password = await bcrypt.hash(newpassword, salt);
     }
-    await existingUser.save();
+    
+    const sess = await mongoose.startSession();
+    sess.startTransaction();
+    
+    const imageurl = existingUser.image;
+    if (existingUser.posts.length > 0) {
+      existingUser.posts.map(async (posts_id) => {
+        await Post.findByIdAndUpdate(posts_id, {
+          creatorName: name,
+          creatorUsername: username,
+          creatorImage: req.file !== undefined ? req.file.path : imageurl,
+        },{session: sess});
+      });
+    }
+
+    if(existingUser.comments.length > 0){
+      existingUser.comments.map(async (comment_id) => {
+        const current_comment = await Comment.findById(comment_id);
+        current_comment.creatorName = name;
+        current_comment.creatorUsername = username;
+        current_comment.creatorImage = req.file !== undefined ? req.file.path : imageurl;
+        await current_comment.save({ session: sess });
+        // await Comment.findByIdAndUpdate(comment_id, {
+        //   creatorName: name,
+        //   creatorUsername: username,
+        //   creatorImage: req.file !== undefined ? req.file.path : imageurl,
+        // },{session: sess});
+      });
+    }
+    await existingUser.save({ session: sess });
+    sess.commitTransaction();
     res.json({ user: existingUser });
   } catch (err) {
     console.error(err.message);

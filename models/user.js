@@ -14,6 +14,7 @@ const userSchema = new Schema({
     default: "uploads\\images\\default-profile-icon-24.jpg",
   },
   posts: [{ type: mongoose.Types.ObjectId, ref: "Post" }],
+  comments: [{ type: mongoose.Types.ObjectId, ref: "Comment" }],
 });
 
 userSchema.plugin(uniqueValidator);
