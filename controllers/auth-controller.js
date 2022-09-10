@@ -146,7 +146,7 @@ const update = async (req, res, next) => {
     
     const sess = await mongoose.startSession();
     sess.startTransaction();
-
+    
     const imageurl = existingUser.image;
     if (existingUser.posts.length > 0) {
       existingUser.posts.map(async (posts_id) => {
@@ -160,14 +160,19 @@ const update = async (req, res, next) => {
 
     if(existingUser.comments.length > 0){
       existingUser.comments.map(async (comment_id) => {
-        await Comment.findByIdAndUpdate(comment_id, {
-          creatorName: name,
-          creatorUsername: username,
-          creatorImage: req.file !== undefined ? req.file.path : imageurl,
-        },{session: sess});
+        const current_comment = await Comment.findById(comment_id);
+        current_comment.creatorName = name;
+        current_comment.creatorUsername = username;
+        current_comment.creatorImage = req.file !== undefined ? req.file.path : imageurl;
+        await current_comment.save({ session: sess });
+        // await Comment.findByIdAndUpdate(comment_id, {
+        //   creatorName: name,
+        //   creatorUsername: username,
+        //   creatorImage: req.file !== undefined ? req.file.path : imageurl,
+        // },{session: sess});
       });
     }
-    await existingUser.save();
+    await existingUser.save({ session: sess });
     sess.commitTransaction();
     res.json({ user: existingUser });
   } catch (err) {
